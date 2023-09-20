@@ -24,5 +24,7 @@ app.get('/delete/:email', (req,res)=>{
     fs.unlinkSync(req.params.email)
     res.send("dados apagados!")
 })
-
+app.use((req, res, next) => {
+    res.send({erro: true, msg: "Rota não definida no servidor."})
+});
 app.listen(8080, ()=> console.log("servidor rodando..."))
