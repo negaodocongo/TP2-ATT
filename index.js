@@ -1,30 +1,31 @@
-const express = require('express');
+const express = require('express')
+const fs = require('fs')
 const app = express()
-const fs = require("fs")
-
 app.use(express.json())
-app.use(express.static("public"));
+
+app.get('/app/:email', (req, res) => {
+    
+    res.send(JSON.parse(fs.readFileSync(req.params.email+'.json')))
+    })
+app.post('/app/post', (req, res) => {
+    const data = req.body
+    fs.writeFileSync(data.email+'.json', JSON.stringify(data))
+    res.send({email: data.email})
+    })
+app.put('/app/put', (req, res) => {
+    const data = req.body 
+    fs.writeFileSync(`${data.email}.json`, JSON.stringify(data), {flag: 'w'})
+    res.send(`dados atualizados com sucesso`)
+    })
+app.delete('/app/delete', (req, res) => {
+    const data = req.body
+    fs.unlinkSync(data.email+'.json')
+    res.send('dados apagados')
+    })
+
+    app.all('*', (req,res)=>{
+        res.send({erro: true, msg: "Rota não definida no servidor."})
+    })
 
 
-app.post('/', (req, res) => {
-    const dados  = JSON.stringify(req.body)
-    fs.writeFileSync(req.body.email+".Json", dados)
-    res.send('sucesso');
-})
-
-app.post('/listinha', (req,res)=>{
-  fs.readdir(__dirname, (err, files)=>{
-     if (err) console.log(err);
-     var newfiles =  files.filter(data => data.includes('.Json') )
-     console.log(newfiles);
-      res.send({files: newfiles})
-  })
-})
-app.get('/delete/:email', (req,res)=>{
-    fs.unlinkSync(req.params.email)
-    res.send("dados apagados!")
-})
-app.use((req, res, next) => {
-    res.send({erro: true, msg: "Rota não definida no servidor."})
-});
-app.listen(8080, ()=> console.log("servidor rodando..."))
+app.listen(3000, ()=>console.log(`server loading`))
